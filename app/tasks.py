@@ -20,7 +20,6 @@ logger = logging.getLogger(__name__)
 # (e.g. malformed address, 5xx from the relay) are NOT retried.
 _RETRYABLE = (
     smtplib.SMTPServerDisconnected,
-    smtplib.SMTPTimeoutError,
     TimeoutError,
     ConnectionError,
     OSError,
