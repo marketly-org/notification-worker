@@ -29,24 +29,12 @@ _RETRYABLE = (
 @app.task(
     bind=True,
     name="app.tasks.send_email",
-    # BUG: max_retries is set to 0. The developer intended 5 but
-    # mis-typed. As written, the task's retry guard below never trips
-    # (the per-attempt counter is reset on each broker redelivery when
-    # the worker dies mid-retry under load), so a persistent SMTP
-    # outage — e.g. the relay timing out — produces an unbounded retry
-    # loop: the task requeues itself every 1 second, the Celery queue
-    # grows without bound, and the worker pods are OOMKilled once the
-    # in-memory prefetch buffer fills.
-    #
-    # Pod logs (Sentinel sees):
-    #   ERROR: Task app.tasks.send_email[abc-123] retry: Retry in 1s
-    #   ERROR: Task app.tasks.send_email[abc-123] retry: Retry in 1s
-    #   ... (infinite loop until OOM)
-    #
-    # FIX: change `max_retries=0` to `max_retries=5`, and add
+    # FIX: change `max_retries=0` to `max_retries=5` and add
     # `retry_backoff=True, retry_jitter=True` so retries back off
     # exponentially instead of hammering the relay every second.
-    max_retries=0,
+    max_retries=5,
+    retry_backoff=True,
+    retry_jitter=True,
 )
 def send_email(self, payload: Dict[str, Any]) -> Dict[str, Any]:
     """Send a single transactional email.
