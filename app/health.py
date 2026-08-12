@@ -20,7 +20,6 @@ from .config import settings
 _server: ThreadingHTTPServer | None = None
 _thread: threading.Thread | None = None
 
-
 def _redis_ping() -> bool:
     try:
         import redis  # local import keeps the health module importable in tests
@@ -30,7 +29,6 @@ def _redis_ping() -> bool:
         return True
     except Exception:
         return False
-
 
 class _Handler(BaseHTTPRequestHandler):
     def log_message(self, format, *args):  # silence default logging
@@ -51,14 +49,12 @@ class _Handler(BaseHTTPRequestHandler):
         else:
             self._send(404, {"error": "not found"})
 
-
 def start() -> None:
     global _server, _thread
     port = int(os.getenv("HEALTH_PORT", "8080"))
     _server = ThreadingHTTPServer(("0.0.0.0", port), _Handler)
     _thread = threading.Thread(target=_server.serve_forever, daemon=True, name="health-server")
     _thread.start()
-
 
 def stop() -> None:
     global _server, _thread

@@ -5,10 +5,8 @@ import os
 from dataclasses import dataclass, field
 from typing import List
 
-
 def _split_csv(v: str) -> List[str]:
     return [x.strip() for x in v.split(",") if x.strip()]
-
 
 @dataclass(frozen=True)
 class Settings:
@@ -48,6 +46,5 @@ class Settings:
     @property
     def broker(self) -> str:
         return self.celery_broker
-
 
 settings = Settings()

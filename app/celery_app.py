@@ -35,7 +35,6 @@ app.conf.update(
     },
 )
 
-
 @worker_ready.connect
 def _start_health_server(**_kwargs) -> None:
     # Imported lazily so the test suite (which doesn't start a worker)
@@ -44,12 +43,10 @@ def _start_health_server(**_kwargs) -> None:
 
     health.start()
 
-
 @worker_shutdown.connect
 def _stop_health_server(**_kwargs) -> None:
     from . import health
 
     health.stop()
-
 
 __all__ = ["app"]

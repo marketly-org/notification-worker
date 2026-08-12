@@ -11,7 +11,6 @@ from typing import Optional
 
 from .config import settings
 
-
 class EmailClient:
     """Synchronous SMTP client. One connection per send (transactional
     volume is low; a connection pool would be over-engineering)."""
@@ -49,7 +48,6 @@ class EmailClient:
             if self.username and self.password:
                 smtp.login(self.username, self.password)
             smtp.send_message(msg)
-
 
 # Module-level singleton used by the Celery task. Tests monkey-patch
 # this attribute to inject a fake client.

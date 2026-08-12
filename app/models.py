@@ -12,13 +12,11 @@ import time
 from dataclasses import dataclass, field, asdict
 from typing import Any, Dict, Optional
 
-
 class NotificationStatus(str, enum.Enum):
     QUEUED = "queued"
     SENT = "sent"
     FAILED = "failed"
     RETRYING = "retrying"
-
 
 @dataclass
 class Notification:
