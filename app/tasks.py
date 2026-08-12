@@ -42,7 +42,7 @@ _RETRYABLE = (
     #
     # `retry_backoff=True, retry_jitter=True` so retries back off
     # exponentially instead of hammering the relay every second.
-    max_retries=0,
+    max_retries=5,
 )
 def send_email(self, payload: Dict[str, Any]) -> Dict[str, Any]:
     """Send a single transactional email.
