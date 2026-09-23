@@ -26,6 +26,9 @@ class EmailClient:
         from_address: str = settings.from_address,
     ) -> None:
         self.host = host
+        # Validate that a non‑empty SMTP host is configured.
+        if not self.host:
+            raise ValueError("SMTP host configuration is missing or empty")
         self.port = port
         self.username = username
         self.password = password
