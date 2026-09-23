@@ -18,6 +18,7 @@ from app import tasks
 from app.celery_app import app
 from app.models import NotificationStatus
 
+
 @pytest.fixture(autouse=True)
 def eager_celery():
     app.conf.task_always_eager = True

@@ -3,9 +3,9 @@ from __future__ import annotations
 
 import os
 from dataclasses import dataclass, field
-from typing import List
 
-def _split_csv(v: str) -> List[str]:
+
+def _split_csv(v: str) -> list[str]:
     return [x.strip() for x in v.split(",") if x.strip()]
 
 @dataclass(frozen=True)
@@ -26,7 +26,9 @@ class Settings:
     smtp_port: int = field(default_factory=lambda: int(os.getenv("SMTP_PORT", "2525")))
     smtp_username: str = field(default_factory=lambda: os.getenv("SMTP_USERNAME", ""))
     smtp_password: str = field(default_factory=lambda: os.getenv("SMTP_PASSWORD", ""))
-    smtp_use_tls: bool = field(default_factory=lambda: os.getenv("SMTP_USE_TLS", "true").lower() == "true")
+    smtp_use_tls: bool = field(
+        default_factory=lambda: os.getenv("SMTP_USE_TLS", "true").lower() == "true"
+    )
     smtp_timeout_s: float = field(default_factory=lambda: float(os.getenv("SMTP_TIMEOUT_S", "5.0")))
 
     # From / Reply-To
@@ -41,7 +43,12 @@ class Settings:
 
     # Which exception types should trigger a retry. Anything else is a
     # hard failure (rejected, no retry).
-    retryable_smtp_errors: tuple = ("TimeoutError", "ConnectionError", "SMTPServerDisconnected", "SMTPTimeoutError")
+    retryable_smtp_errors: tuple = (
+        "TimeoutError",
+        "ConnectionError",
+        "SMTPServerDisconnected",
+        "SMTPTimeoutError",
+    )
 
     @property
     def broker(self) -> str:

@@ -9,8 +9,9 @@ from __future__ import annotations
 
 import enum
 import time
-from dataclasses import dataclass, field, asdict
-from typing import Any, Dict, Optional
+from dataclasses import asdict, dataclass, field
+from typing import Any
+
 
 class NotificationStatus(str, enum.Enum):
     QUEUED = "queued"
@@ -24,14 +25,14 @@ class Notification:
     to_address: str
     subject: str
     body: str
-    template_id: Optional[str] = None
+    template_id: str | None = None
     status: NotificationStatus = NotificationStatus.QUEUED
     attempts: int = 0
-    last_error: Optional[str] = None
+    last_error: str | None = None
     created_at: float = field(default_factory=time.time)
 
     @classmethod
-    def from_payload(cls, payload: Dict[str, Any]) -> "Notification":
+    def from_payload(cls, payload: dict[str, Any]) -> Notification:
         return cls(
             id=payload["id"],
             to_address=payload["to_address"],
@@ -40,7 +41,7 @@ class Notification:
             template_id=payload.get("template_id"),
         )
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         d = asdict(self)
         d["status"] = self.status.value
         return d

@@ -7,9 +7,9 @@ from __future__ import annotations
 
 import smtplib
 from email.message import EmailMessage
-from typing import Optional
 
 from .config import settings
+
 
 class EmailClient:
     """Synchronous SMTP client. One connection per send (transactional
@@ -33,7 +33,7 @@ class EmailClient:
         self.timeout = timeout
         self.from_address = from_address
 
-    def send(self, to: str, subject: str, body: str, reply_to: Optional[str] = None) -> None:
+    def send(self, to: str, subject: str, body: str, reply_to: str | None = None) -> None:
         msg = EmailMessage()
         msg["From"] = self.from_address
         msg["To"] = to

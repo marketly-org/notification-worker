@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import logging
 import smtplib
-from typing import Any, Dict
+from typing import Any
 
 from .celery_app import app
 from .email_client import default_client
@@ -44,7 +44,7 @@ _RETRYABLE = (
     # exponentially instead of hammering the relay every second.
     max_retries=0,
 )
-def send_email(self, payload: Dict[str, Any]) -> Dict[str, Any]:
+def send_email(self, payload: dict[str, Any]) -> dict[str, Any]:
     """Send a single transactional email.
 
     Payload keys: ``id``, ``to_address``, ``subject``, ``body`` and
@@ -73,7 +73,7 @@ def send_email(self, payload: Dict[str, Any]) -> Dict[str, Any]:
         )
         # Requeue for another attempt. The countdown is fixed at 1s —
         # "Retry in 1s" loop.
-        raise self.retry(exc=exc, countdown=1)
+        raise self.retry(exc=exc, countdown=1) from exc
     except Exception as exc:
         # Non-retryable (malformed address, 5xx, etc.) — fail hard.
         notification.status = NotificationStatus.FAILED
@@ -88,7 +88,7 @@ def send_email(self, payload: Dict[str, Any]) -> Dict[str, Any]:
     return notification.to_dict()
 
 @app.task(name="app.tasks.health")
-def health() -> Dict[str, str]:
+def health() -> dict[str, str]:
     """Lightweight task used by the readiness check to confirm the
     worker is pulling from the broker."""
     return {"status": "ok", "service": "notification-worker"}
