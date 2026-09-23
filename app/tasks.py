@@ -30,20 +30,6 @@ _RETRYABLE = (
 @app.task(
     bind=True,
     name="app.tasks.send_email",
-    # mis-typed. As written, the task's retry guard below never trips
-    # (the per-attempt counter is reset on each broker redelivery when
-    # the worker dies mid-retry under load), so a persistent SMTP
-    # loop: the task requeues itself every 1 second, the Celery queue
-    # grows without bound, and the worker pods are OOMKilled once the
-    # in-memory prefetch buffer fills.
-    #
-    # Pod logs (Sentinel sees):
-    #   ERROR: Task app.tasks.send_email[abc-123] retry: Retry in 1s
-    #   ERROR: Task app.tasks.send_email[abc-123] retry: Retry in 1s
-    #   ... (infinite loop until OOM)
-    #
-    # `retry_backoff=True, retry_jitter=True` so retries back off
-    # exponentially instead of hammering the relay every second.
     max_retries=0,
 )
 def send_email(self, payload: dict[str, Any]) -> dict[str, Any]:
@@ -73,8 +59,7 @@ def send_email(self, payload: dict[str, Any]) -> dict[str, Any]:
             "send_email.retry id=%s attempt=%s err=%s",
             notification.id, notification.attempts, notification.last_error,
         )
-        # Requeue for another attempt. The countdown is fixed at 1s —
-        # "Retry in 1s" loop.
+        # Requeue for another attempt.
         raise self.retry(exc=exc, countdown=1) from exc
     except Exception as exc:
         # Non-retryable (malformed address, 5xx, etc.) — fail hard.
