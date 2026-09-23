@@ -18,11 +18,13 @@ logger = logging.getLogger(__name__)
 
 # Exceptions we consider transient and worth retrying. Hard errors
 # (e.g. malformed address, 5xx from the relay) are NOT retried.
+# NOTE: deliberately NOT catching OSError here — smtplib's
+# SMTPException hierarchy roots at OSError, so a broad OSError catch
+# would wrongly retry hard 5xx failures (e.g. SMTPResponseException).
 _RETRYABLE = (
     smtplib.SMTPServerDisconnected,
     TimeoutError,
     ConnectionError,
-    OSError,
 )
 
 @app.task(
