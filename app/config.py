@@ -8,6 +8,10 @@ from dataclasses import dataclass, field
 def _split_csv(v: str) -> list[str]:
     return [x.strip() for x in v.split(",") if x.strip()]
 
+def _strip_scheme(v: str) -> str:
+    """Remove URL scheme from a host string, e.g. ``smtp://mail.example.com`` → ``mail.example.com``."""
+    return v.split("://", 1)[-1] if "://" in v else v
+
 @dataclass(frozen=True)
 class Settings:
     # Celery / Redis
@@ -22,7 +26,7 @@ class Settings:
     )
 
     # SMTP
-    smtp_host: str = field(default_factory=lambda: os.getenv("SMTP_HOST", "localhost"))
+    smtp_host: str = field(default_factory=lambda: _strip_scheme(os.getenv("SMTP_HOST", "localhost")))
     smtp_port: int = field(default_factory=lambda: int(os.getenv("SMTP_PORT", "2525")))
     smtp_username: str = field(default_factory=lambda: os.getenv("SMTP_USERNAME", ""))
     smtp_password: str = field(default_factory=lambda: os.getenv("SMTP_PASSWORD", ""))
