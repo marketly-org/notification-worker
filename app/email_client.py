@@ -33,6 +33,11 @@ class EmailClient:
         self.timeout = timeout
         self.from_address = from_address
 
+        # Ensure a valid SMTP host is configured; an empty or None value
+        # would cause a socket.gaierror when attempting to connect.
+        if not self.host:
+            raise ValueError("SMTP host is not configured")
+
     def send(self, to: str, subject: str, body: str, reply_to: str | None = None) -> None:
         msg = EmailMessage()
         msg["From"] = self.from_address
