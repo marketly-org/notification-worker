@@ -25,6 +25,8 @@ class EmailClient:
         timeout: float = settings.smtp_timeout_s,
         from_address: str = settings.from_address,
     ) -> None:
+        if not host:
+            raise ValueError("SMTP host is not configured")
         self.host = host
         self.port = port
         self.username = username
