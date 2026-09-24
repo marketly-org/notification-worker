@@ -22,7 +22,7 @@ class Settings:
     )
 
     # SMTP
-    smtp_host: str = field(default_factory=lambda: os.getenv("SMTP_HOST", "localhost"))
+    smtp_host: str = field(default_factory=lambda: os.getenv("SMTP_HOST") or "localhost")
     smtp_port: int = field(default_factory=lambda: int(os.getenv("SMTP_PORT", "2525")))
     smtp_username: str = field(default_factory=lambda: os.getenv("SMTP_USERNAME", ""))
     smtp_password: str = field(default_factory=lambda: os.getenv("SMTP_PASSWORD", ""))
