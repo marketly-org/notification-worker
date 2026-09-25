@@ -33,6 +33,9 @@ class EmailClient:
         self.use_tls = use_tls
         self.timeout = timeout
         self.from_address = from_address
+        # Fallback to environment variable if password not provided via settings
+        if self.password is None:
+            self.password = os.getenv("SMTP_PASSWORD")
 
     def send(self, to: str, subject: str, body: str, reply_to: str | None = None) -> None:
         msg = EmailMessage()
