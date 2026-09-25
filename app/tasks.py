@@ -12,7 +12,11 @@ import socket
 from typing import Any
 
 from .celery_app import app
-from .email_client import default_client
+# Email client is imported lazily inside the task to avoid DNS resolution
+# errors (e.g., invalid SMTP_HOST) causing import-time crashes.
+def _get_email_client():
+    from .email_client import default_client
+    return default_client
 from .models import Notification, NotificationStatus
 
 logger = logging.getLogger(__name__)
@@ -49,7 +53,7 @@ def send_email(self, payload: dict[str, Any]) -> dict[str, Any]:
     )
 
     try:
-        default_client.send(
+        _get_email_client().send(
             to=notification.to_address,
             subject=notification.subject,
             body=notification.body,
