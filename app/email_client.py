@@ -38,13 +38,6 @@ class EmailClient:
         )
         self.timeout = timeout if timeout is not None else float(os.getenv("SMTP_TIMEOUT_S", settings.smtp_timeout_s))
         self.from_address = from_address if from_address is not None else os.getenv("FROM_ADDRESS", settings.from_address)
-        self.host = host
-        self.port = port
-        self.username = username
-        self.password = password
-        self.use_tls = use_tls
-        self.timeout = timeout
-        self.from_address = from_address
 
     def send(self, to: str, subject: str, body: str, reply_to: str | None = None) -> None:
         msg = EmailMessage()
