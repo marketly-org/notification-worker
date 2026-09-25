@@ -6,6 +6,7 @@ injecting a fake client (see tests/test_tasks.py).
 from __future__ import annotations
 
 import smtplib
+import os
 from email.message import EmailMessage
 
 from .config import settings
@@ -17,14 +18,26 @@ class EmailClient:
 
     def __init__(
         self,
-        host: str = settings.smtp_host,
-        port: int = settings.smtp_port,
-        username: str = settings.smtp_username,
-        password: str = settings.smtp_password,
-        use_tls: bool = settings.smtp_use_tls,
-        timeout: float = settings.smtp_timeout_s,
-        from_address: str = settings.from_address,
+        host: str | None = None,
+        port: int | None = None,
+        username: str | None = None,
+        password: str | None = None,
+        use_tls: bool | None = None,
+        timeout: float | None = None,
+        from_address: str | None = None,
     ) -> None:
+        # Resolve configuration at runtime, respecting environment variables.
+        self.host = host if host is not None else os.getenv("SMTP_HOST", settings.smtp_host)
+        self.port = port if port is not None else int(os.getenv("SMTP_PORT", settings.smtp_port))
+        self.username = username if username is not None else os.getenv("SMTP_USERNAME", settings.smtp_username)
+        self.password = password if password is not None else os.getenv("SMTP_PASSWORD", settings.smtp_password)
+        self.use_tls = (
+            use_tls
+            if use_tls is not None
+            else os.getenv("SMTP_USE_TLS", str(settings.smtp_use_tls)).lower() == "true"
+        )
+        self.timeout = timeout if timeout is not None else float(os.getenv("SMTP_TIMEOUT_S", settings.smtp_timeout_s))
+        self.from_address = from_address if from_address is not None else os.getenv("FROM_ADDRESS", settings.from_address)
         self.host = host
         self.port = port
         self.username = username
