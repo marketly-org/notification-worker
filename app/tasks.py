@@ -32,7 +32,7 @@ _RETRYABLE = (
 @app.task(
     bind=True,
     name="app.tasks.send_email",
-    max_retries=0,
+    max_retries=3,
 )
 def send_email(self, payload: dict[str, Any]) -> dict[str, Any]:
     """Send a single transactional email.
