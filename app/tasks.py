@@ -12,7 +12,6 @@ import socket
 from typing import Any
 
 from .celery_app import app
-from .email_client import default_client
 from .models import Notification, NotificationStatus
 
 logger = logging.getLogger(__name__)
@@ -22,11 +21,12 @@ logger = logging.getLogger(__name__)
 # NOTE: deliberately NOT catching OSError here — smtplib's
 # SMTPException hierarchy roots at OSError, so a broad OSError catch
 # would wrongly retry hard 5xx failures (e.g. SMTPResponseException).
+# socket.gaierror is NOT included because max_retries=0 makes retries
+# impossible — a DNS failure would raise MaxRetriesExceededError.
 _RETRYABLE = (
     smtplib.SMTPServerDisconnected,
     TimeoutError,
     ConnectionError,
-    socket.gaierror,
 )
 
 @app.task(
@@ -47,6 +47,8 @@ def send_email(self, payload: dict[str, Any]) -> dict[str, Any]:
         "send_email.start id=%s to=%s attempt=%s",
         notification.id, notification.to_address, notification.attempts,
     )
+
+    from .email_client import default_client
 
     try:
         default_client.send(
