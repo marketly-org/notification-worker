@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import logging
 import smtplib
+import socket
 from typing import Any
 
 from .celery_app import app
@@ -23,6 +24,7 @@ logger = logging.getLogger(__name__)
 # would wrongly retry hard 5xx failures (e.g. SMTPResponseException).
 _RETRYABLE = (
     smtplib.SMTPServerDisconnected,
+    socket.gaierror,
     TimeoutError,
     ConnectionError,
 )
