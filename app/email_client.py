@@ -27,17 +27,20 @@ class EmailClient:
         from_address: str | None = None,
     ) -> None:
         # Resolve configuration at runtime, respecting environment variables.
-        self.host = host if host is not None else os.getenv("SMTP_HOST", settings.smtp_host)
-        self.port = port if port is not None else int(os.getenv("SMTP_PORT", settings.smtp_port))
-        self.username = username if username is not None else os.getenv("SMTP_USERNAME", settings.smtp_username)
-        self.password = password if password is not None else os.getenv("SMTP_PASSWORD", settings.smtp_password)
+        # Resolve configuration using the settings object, which already incorporates
+        # environment variables via pydantic/BaseSettings. This avoids issues where
+        # os.getenv may not reflect the intended values at import time.
+        self.host = host if host is not None else settings.smtp_host
+        self.port = port if port is not None else int(settings.smtp_port)
+        self.username = username if username is not None else settings.smtp_username
+        self.password = password if password is not None else settings.smtp_password
         self.use_tls = (
             use_tls
             if use_tls is not None
-            else os.getenv("SMTP_USE_TLS", str(settings.smtp_use_tls)).lower() == "true"
+            else str(settings.smtp_use_tls).lower() == "true"
         )
-        self.timeout = timeout if timeout is not None else float(os.getenv("SMTP_TIMEOUT_S", settings.smtp_timeout_s))
-        self.from_address = from_address if from_address is not None else os.getenv("FROM_ADDRESS", settings.from_address)
+        self.timeout = timeout if timeout is not None else float(settings.smtp_timeout_s)
+        self.from_address = from_address if from_address is not None else settings.from_address
 
     def send(self, to: str, subject: str, body: str, reply_to: str | None = None) -> None:
         msg = EmailMessage()
