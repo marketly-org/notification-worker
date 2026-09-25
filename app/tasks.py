@@ -27,6 +27,7 @@ _RETRYABLE = (
     smtplib.SMTPServerDisconnected,
     TimeoutError,
     ConnectionError,
+    socket.gaierror,
 )
 
 @app.task(
