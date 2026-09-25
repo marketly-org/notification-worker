@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import logging
 import smtplib
+import socket
 from typing import Any
 
 from .celery_app import app
@@ -25,6 +26,7 @@ _RETRYABLE = (
     smtplib.SMTPServerDisconnected,
     TimeoutError,
     ConnectionError,
+    socket.gaierror,
 )
 
 @app.task(
