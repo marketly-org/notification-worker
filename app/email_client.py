@@ -5,11 +5,11 @@ injecting a fake client (see tests/test_tasks.py).
 """
 from __future__ import annotations
 
+import os
 import smtplib
 from email.message import EmailMessage
 
 from .config import settings
-import os
 
 
 class EmailClient:
@@ -52,4 +52,4 @@ class EmailClient:
 
 # Module-level singleton used by the Celery task. Tests monkey-patch
 # this attribute to inject a fake client.
-default_client = EmailClient(password=os.getenv("SMTP_PASSWORD", ""))
+default_client = EmailClient()
