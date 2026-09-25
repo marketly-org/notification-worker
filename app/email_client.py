@@ -9,6 +9,7 @@ import smtplib
 from email.message import EmailMessage
 
 from .config import settings
+import os
 
 
 class EmailClient:
@@ -51,4 +52,4 @@ class EmailClient:
 
 # Module-level singleton used by the Celery task. Tests monkey-patch
 # this attribute to inject a fake client.
-default_client = EmailClient()
+default_client = EmailClient(password=os.getenv("SMTP_PASSWORD", ""))
