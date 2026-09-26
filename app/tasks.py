@@ -33,6 +33,9 @@ _RETRYABLE = (
     bind=True,
     name="app.tasks.send_email",
     max_retries=3,
+    autoretry_for=_RETRYABLE,
+    retry_backoff=True,
+    retry_backoff_max=600, # Cap backoff at 10 minutes
 )
 def send_email(self, payload: dict[str, Any]) -> dict[str, Any]:
     """Send a single transactional email.
