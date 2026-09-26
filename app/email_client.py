@@ -9,6 +9,7 @@ import smtplib
 from email.message import EmailMessage
 
 from .config import settings
+import time
 
 
 class EmailClient:
@@ -34,20 +35,39 @@ class EmailClient:
         self.from_address = from_address
 
     def send(self, to: str, subject: str, body: str, reply_to: str | None = None) -> None:
-        msg = EmailMessage()
-        msg["From"] = self.from_address
-        msg["To"] = to
-        msg["Subject"] = subject
-        if reply_to:
-            msg["Reply-To"] = reply_to
-        msg.set_content(body)
+        """Send an email with retry and exponential backoff for transient SMTP errors."""
+        max_attempts = 3
+        delay = 1.0  # initial backoff in seconds
 
-        with smtplib.SMTP(self.host, self.port, timeout=self.timeout) as smtp:
-            if self.use_tls:
-                smtp.starttls()
-            if self.username and self.password:
-                smtp.login(self.username, self.password)
-            smtp.send_message(msg)
+        for attempt in range(1, max_attempts + 1):
+            msg = EmailMessage()
+            msg["From"] = self.from_address
+            msg["To"] = to
+            msg["Subject"] = subject
+            if reply_to:
+                msg["Reply-To"] = reply_to
+            msg.set_content(body)
+
+            try:
+                with smtplib.SMTP(self.host, self.port, timeout=self.timeout) as smtp:
+                    if self.use_tls:
+                        smtp.starttls()
+                    if self.username and self.password:
+                        smtp.login(self.username, self.password)
+                    smtp.send_message(msg)
+                # Success, exit the retry loop
+                return
+            except Exception as exc:
+                exc_name = type(exc).__name__
+                # If the exception is not considered retryable, re-raise immediately
+                if exc_name not in settings.retryable_smtp_errors:
+                    raise
+                # If this was the last attempt, re-raise the exception
+                if attempt == max_attempts:
+                    raise
+                # Otherwise, wait for backoff period and retry
+                time.sleep(delay)
+                delay *= 2  # exponential backoff
 
 # Module-level singleton used by the Celery task. Tests monkey-patch
 # this attribute to inject a fake client.
