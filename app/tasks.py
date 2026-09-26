@@ -64,8 +64,8 @@ def send_email(self, payload: dict[str, Any]) -> dict[str, Any]:
             "send_email.retry id=%s attempt=%s err=%s",
             notification.id, notification.attempts, notification.last_error,
         )
-        # Requeue for another attempt.
-        raise self.retry(exc=exc, countdown=1) from exc
+        # Allow Celery's autoretry_for to handle the retry with exponential backoff.
+        raise exc
     except Exception as exc:
         # Non-retryable (malformed address, 5xx, etc.) — fail hard.
         notification.status = NotificationStatus.FAILED
