@@ -6,10 +6,10 @@ injecting a fake client (see tests/test_tasks.py).
 from __future__ import annotations
 
 import smtplib
+import time
 from email.message import EmailMessage
 
 from .config import settings
-import time
 
 
 class EmailClient:
