@@ -8,7 +8,6 @@ from __future__ import annotations
 
 import logging
 import smtplib
-import socket
 from typing import Any
 
 from .celery_app import app
@@ -26,13 +25,12 @@ _RETRYABLE = (
     smtplib.SMTPServerDisconnected,
     TimeoutError,
     ConnectionError,
-    socket.gaierror,
 )
 
 @app.task(
     bind=True,
     name="app.tasks.send_email",
-    max_retries=3,
+    max_retries=0,
 )
 def send_email(self, payload: dict[str, Any]) -> dict[str, Any]:
     """Send a single transactional email.
