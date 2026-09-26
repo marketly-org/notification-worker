@@ -33,6 +33,10 @@ class EmailClient:
         self.timeout = timeout
         self.from_address = from_address
 
+        # Validate SMTP credentials: if a username is supplied, a non-empty password is required.
+        if self.username and not self.password:
+            raise ValueError("SMTP_PASSWORD must be set when SMTP_USERNAME is provided")
+
     def send(self, to: str, subject: str, body: str, reply_to: str | None = None) -> None:
         msg = EmailMessage()
         msg["From"] = self.from_address
