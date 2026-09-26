@@ -32,9 +32,10 @@ _RETRYABLE = (
 @app.task(
     bind=True,
     name="app.tasks.send_email",
-    max_retries=3,
+    max_retries=5, # Increased from 3 to allow more attempts for transient issues
     autoretry_for=_RETRYABLE,
     retry_backoff=True,
+    retry_backoff_factor=2, # Explicitly set exponential backoff factor
     retry_backoff_max=600, # Cap backoff at 10 minutes
 )
 def send_email(self, payload: dict[str, Any]) -> dict[str, Any]:
